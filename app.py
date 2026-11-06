@@ -1,337 +1,199 @@
-import streamlit as st
+"""Research Desk - Streamlit entry point.
 
+The UI shell lives in ``src/ui``: theme injection, run state and HTML builders.
+This file only wires the sidebar run console to the pipeline and renders the
+results workspace.
+"""
+
+from __future__ import annotations
+
+import streamlit as st
+import groq
+
+from src.ui.components import (
+    extract_links,
+    render_app_bar,
+    render_brand,
+    render_document_header,
+    render_idle_workspace,
+    render_run_details,
+    render_source_links,
+    render_stage_rail,
+    strip_leading_heading,
+)
+from src.ui.run_state import (
+    begin_run,
+    critique_state_of,
+    fail_run,
+    finish_run,
+    format_score,
+    init_state,
+    parse_score,
+    record_event,
+    report_filename,
+    stage_views,
+)
+from src.ui.theme import inject_styles
 
 st.set_page_config(
-	page_title="Research Desk",
-	page_icon="📘",
-	layout="wide",
-	initial_sidebar_state="expanded",
+    page_title="Research Desk",
+    page_icon="◆",
+    layout="wide",
+    initial_sidebar_state="expanded",
 )
 
-st.markdown(
-	"""
-	<style>
-	@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-
-	:root {
-		--bg: #f4f7f5;
-		--panel: rgba(255,255,255,0.8);
-		--panel-solid: #ffffff;
-		--ink: #111827;
-		--muted: #5d6978;
-		--line: rgba(15, 23, 42, 0.08);
-		--primary: #0f766e;
-		--primary-strong: #115e59;
-		--primary-soft: #dff7f3;
-		--accent: #f59e0b;
-		--accent-soft: #fff1cf;
-		--shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
-	}
-
-	html, body, [class*="css"] {
-		font-family: 'Inter', sans-serif;
-		color: var(--ink);
-	}
-
-	.stApp {
-		background:
-			radial-gradient(circle at top right, rgba(15, 118, 110, 0.15), transparent 30%),
-			radial-gradient(circle at bottom left, rgba(245, 158, 11, 0.12), transparent 32%),
-			var(--bg);
-	}
-
-	[data-testid="stSidebar"] {
-		background: linear-gradient(180deg, #edf9f6 0%, #f9fbfb 100%);
-		border-right: 1px solid var(--line);
-	}
-
-	[data-testid="stSidebar"] > div:first-child { padding-top: 1.2rem; }
-
-	.main .block-container {
-		padding-top: 2rem;
-		padding-bottom: 3rem;
-	}
-
-	.brand-mark {
-		color: var(--primary-strong);
-		font: 600 11px 'JetBrains Mono', monospace;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-	}
-
-	.hero {
-		background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(223,247,243,0.9));
-		border: 1px solid var(--line);
-		border-radius: 22px;
-		padding: 1.5rem 1.5rem 1.2rem;
-		box-shadow: var(--shadow);
-		margin-bottom: 1.2rem;
-	}
-
-	.page-kicker {
-		margin: 0 0 .55rem;
-		color: var(--primary);
-		font: 700 11px 'JetBrains Mono', monospace;
-		letter-spacing: 0.14em;
-		text-transform: uppercase;
-	}
-
-	.page-title {
-		margin: 0;
-		font-size: clamp(2.2rem, 3vw, 4rem);
-		line-height: 1.03;
-		font-weight: 800;
-		letter-spacing: -0.06em;
-		color: var(--ink);
-	}
-
-	.page-subtitle {
-		margin: .8rem 0 1.25rem;
-		font-size: 1.05rem;
-		color: var(--muted);
-		max-width: 760px;
-	}
-
-	.metric-card {
-		background: var(--panel-solid);
-		border: 1px solid var(--line);
-		border-radius: 16px;
-		padding: 1rem 1.1rem;
-		box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
-	}
-
-	.metric-label {
-		font-size: .72rem;
-		letter-spacing: 0.12em;
-		color: var(--muted);
-		text-transform: uppercase;
-		font-weight: 700;
-	}
-
-	.metric-value {
-		font-size: 1.65rem;
-		font-weight: 800;
-		margin-top: .35rem;
-		color: var(--ink);
-	}
-
-	.metric-chip {
-		display: inline-block;
-		padding: .3rem .65rem;
-		border-radius: 999px;
-		background: var(--primary-soft);
-		color: var(--primary-strong);
-		font-size: .72rem;
-		font-weight: 700;
-	}
-
-	.section-label {
-		color: var(--primary);
-		font: 700 11px 'JetBrains Mono', monospace;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-	}
-
-	.panel-card {
-		background: rgba(255,255,255,0.7);
-		border: 1px solid var(--line);
-		border-radius: 18px;
-		padding: 1.1rem 1.2rem;
-		box-shadow: 0 8px 25px rgba(15, 23, 42, 0.03);
-	}
-
-	div.stButton > button[kind="primary"] {
-		background: linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%);
-		border: none;
-		border-radius: 12px;
-		color: white;
-		font-weight: 700;
-		min-height: 2.9rem;
-		box-shadow: 0 8px 22px rgba(15, 118, 110, 0.25);
-	}
-
-	div.stButton > button[kind="primary"]:hover {
-		background: linear-gradient(135deg, var(--primary-strong) 0%, var(--primary) 100%);
-		filter: brightness(1.02);
-	}
-
-	div[data-testid="stTabs"] button {
-		font-weight: 700;
-	}
-
-	div[data-testid="stTabs"] button[aria-selected="true"] {
-		color: var(--primary-strong);
-		border-bottom-color: var(--primary);
-	}
-
-	div[data-testid="stAlert"] {
-		border-radius: 14px;
-		border: 1px solid rgba(15, 118, 110, 0.12);
-	}
-
-	.empty-state {
-		margin-top: 1.5rem;
-		padding: 1.5rem;
-		border: 1px dashed rgba(15, 118, 110, 0.28);
-		border-radius: 20px;
-		background: rgba(255,255,255,0.5);
-		color: var(--muted);
-	}
-
-	.stTextInput input, .stTextArea textarea {
-		border-radius: 12px;
-		border: 1px solid rgba(15, 23, 42, 0.12);
-		padding: 0.8rem 0.9rem;
-	}
-	</style>
-	""",
-	unsafe_allow_html=True,
-)
+inject_styles()
+init_state()
 
 
+# --------------------------------------------------------------------------- #
+# Sidebar: run console
+# --------------------------------------------------------------------------- #
 with st.sidebar:
-	st.markdown('<div class="brand-mark">Fieldnotes / Research system</div>', unsafe_allow_html=True)
-	st.divider()
-	st.markdown("### New research run")
-	topic = st.text_area(
-		"Research topic",
-		placeholder="For example: How heat affects urban public health",
-		height=120,
-		help="Enter a focused question or topic for the research agents.",
-	)
-	run_clicked = st.button("Run research", type="primary", use_container_width=True)
-	st.caption("Search, extract source text, draft the brief, and review the final critique.")
+    st.markdown(render_brand(), unsafe_allow_html=True)
+
+    with st.container(key="composer"):
+        topic = st.text_area(
+            "Research topic",
+            placeholder="How heat affects urban public health",
+            height=104,
+            help="Web search, source reading, report writing and critique run in sequence.",
+        )
+        run_clicked = st.button("Run research", type="primary", use_container_width=True)
+
+    rail_slot = st.empty()
+    rail_slot.markdown(render_stage_rail(stage_views()), unsafe_allow_html=True)
+
+    if st.session_state.run_events:
+        with st.container(key="runlog"):
+            with st.expander("Run details", expanded=False):
+                st.markdown(
+                    render_run_details(st.session_state.run_events),
+                    unsafe_allow_html=True,
+                )
 
 
-st.markdown(
-	"""
-	<div class="hero">
-		<div class="page-kicker">Multi-agent research</div>
-		<h1 class="page-title">Research desk</h1>
-		<p class="page-subtitle">A source-led research workflow built to turn a question into a polished brief and a sharper critique.</p>
-	</div>
-	""",
-	unsafe_allow_html=True,
-)
-
-metrics = st.columns(4)
-with metrics[0]:
-	st.markdown('<div class="metric-card"><div class="metric-label">Pipeline</div><div class="metric-value">4</div><div class="metric-chip">Stages</div></div>', unsafe_allow_html=True)
-with metrics[1]:
-	st.markdown('<div class="metric-card"><div class="metric-label">Sources</div><div class="metric-value">5</div><div class="metric-chip">Top picks</div></div>', unsafe_allow_html=True)
-with metrics[2]:
-	st.markdown('<div class="metric-card"><div class="metric-label">Report</div><div class="metric-value">AI</div><div class="metric-chip">Drafted</div></div>', unsafe_allow_html=True)
-with metrics[3]:
-	st.markdown('<div class="metric-card"><div class="metric-label">Review</div><div class="metric-value">Live</div><div class="metric-chip">Critique</div></div>', unsafe_allow_html=True)
-
-
+# --------------------------------------------------------------------------- #
+# Run
+# --------------------------------------------------------------------------- #
 if run_clicked:
-	if not topic.strip():
-		st.warning("Enter a research topic to start a run.")
-	else:
-		st.session_state.pop("research_result", None)
-		try:
-			from src.pipelines.pipelines import run_research_pipeline
+    submitted_topic = topic.strip()
+    if not submitted_topic:
+        st.session_state.empty_topic_warning = True
+    else:
+        begin_run(submitted_topic)
+        rail_slot.markdown(render_stage_rail(stage_views()), unsafe_allow_html=True)
 
-			with st.status("Starting research", expanded=True) as progress:
-				def update_progress(label: str) -> None:
-					progress.update(label=label, state="running", expanded=True)
-					progress.write(label)
+        with st.sidebar:
+            with st.container(key="runlog-live"):
+                with st.status("Starting research", expanded=False) as status:
 
-				result = run_research_pipeline(topic.strip(), progress_callback=update_progress)
-				progress.update(label="Research run complete", state="complete", expanded=False)
-			st.session_state.research_result = result
-			st.session_state.research_topic = topic.strip()
-		except Exception as error:
-			st.error("The research run could not be completed.")
-			with st.expander("Error details"):
-				st.code(f"{type(error).__name__}: {error}")
+                    def update_progress(label: str) -> None:
+                        record_event(label)
+                        status.update(label=label, state="running")
+                        rail_slot.markdown(render_stage_rail(stage_views()), unsafe_allow_html=True)
 
+                    try:
+                        from src.pipelines.pipelines import run_research_pipeline
 
-result = st.session_state.get("research_result")
-if result:
-	st.markdown(f'<div class="section-label">Research brief / {st.session_state.research_topic}</div>', unsafe_allow_html=True)
-	report = result.get("report", "No report was returned.")
-	st.download_button(
-		"Download report as Markdown",
-		data=f"# {st.session_state.research_topic}\n\n{report}",
-		file_name="research-report.md",
-		mime="text/markdown",
-	)
+                        result = run_research_pipeline(
+                            submitted_topic,
+                            progress_callback=update_progress,
+                        )
+                    except Exception as error:  # surfaced in the workspace, not swallowed
+                        failed_stage = (
+                            st.session_state.run_events[-1]
+                            if st.session_state.run_events
+                            else "pipeline startup"
+                        )
+                        if isinstance(error, groq.RateLimitError):
+                            summary = (
+                                f"Groq's rate limit was reached during {failed_stage}. "
+                                "Wait for the limit to reset, then run the research again."
+                            )
+                        elif isinstance(error, groq.APIConnectionError):
+                            summary = (
+                                f"Could not connect to Groq during {failed_stage} after retries. "
+                                "Check your internet connection and Groq API availability, then try again."
+                            )
+                        else:
+                            summary = (
+                                f"Research failed during {failed_stage} "
+                                f"({type(error).__name__}). Expand Error details for the technical message."
+                            )
+                        fail_run(f"{type(error).__name__}: {error}", summary)
+                        status.update(label="Research run failed", state="error", expanded=False)
+                    else:
+                        finish_run(result)
+                        status.update(label="Research run complete", state="complete", expanded=False)
 
-	report_tab, review_tab, sources_tab = st.tabs(["Report", "Critique", "Sources"])
-	with report_tab:
-		st.markdown(f"<div class='panel-card'>{report}</div>", unsafe_allow_html=True)
-	with review_tab:
-		st.markdown(f"<div class='panel-card'>{result.get('feedback', 'No critique was returned.')}</div>", unsafe_allow_html=True)
-	with sources_tab:
-		search_column, scrape_column = st.columns(2, gap="large")
-		with search_column:
-			st.markdown("#### Search results")
-			st.markdown(f"<div class='panel-card'>{result.get('search_results', 'No search results were returned.')}</div>", unsafe_allow_html=True)
-		with scrape_column:
-			st.markdown("#### Extracted source text")
-			st.markdown(f"<div class='panel-card'>{result.get('scrape_content', 'No source text was returned.')}</div>", unsafe_allow_html=True)
-else:
-	st.markdown(
-		'<div class="empty-state"><span class="section-label">Workspace ready</span><br><br>'
-		'Enter a topic in the left panel to generate a researched report and critique.'
-		'</div>',
-		unsafe_allow_html=True,
-	)
+        rail_slot.markdown(render_stage_rail(stage_views()), unsafe_allow_html=True)
 
 
-if run_clicked:
-	if not topic.strip():
-		st.warning("Enter a research topic to start a run.")
-	else:
-		st.session_state.pop("research_result", None)
-		try:
-			from src.pipelines.pipelines import run_research_pipeline
+# --------------------------------------------------------------------------- #
+# Workspace
+# --------------------------------------------------------------------------- #
+st.markdown(render_app_bar(st.session_state.run_status), unsafe_allow_html=True)
 
-			with st.status("Starting research", expanded=True) as progress:
-				def update_progress(label: str) -> None:
-					progress.update(label=label, state="running", expanded=True)
-					progress.write(label)
+if st.session_state.pop("empty_topic_warning", False):
+    st.warning("Enter a research topic to start a run.")
 
-				result = run_research_pipeline(topic.strip(), progress_callback=update_progress)
-				progress.update(label="Research run complete", state="complete", expanded=False)
-			st.session_state.research_result = result
-			st.session_state.research_topic = topic.strip()
-		except Exception as error:
-			st.error("The research run could not be completed.")
-			with st.expander("Error details"):
-				st.code(f"{type(error).__name__}: {error}")
+if st.session_state.run_error:
+    st.error(st.session_state.run_error_summary or "The research run could not be completed.")
+    with st.expander("Error details", expanded=False):
+        st.code(st.session_state.run_error, language="text")
 
+result = st.session_state.research_result
+submitted_topic = st.session_state.research_topic
 
-result = st.session_state.get("research_result")
-if result:
-	st.markdown(f'<div class="section-label">Research brief / {st.session_state.research_topic}</div>', unsafe_allow_html=True)
-	report = result.get("report", "No report was returned.")
-	st.download_button(
-		"Download report as Markdown",
-		data=f"# {st.session_state.research_topic}\n\n{report}",
-		file_name="research-report.md",
-		mime="text/markdown",
-	)
+with st.container(key="workspace"):
+    if not result:
+        st.markdown(render_idle_workspace(stage_views()), unsafe_allow_html=True)
+    else:
+        feedback = result.get("feedback") or ""
+        critique_state = critique_state_of(feedback)
+        report = result.get("report") or ""
 
-	report_tab, review_tab, sources_tab = st.tabs(["Report", "Critique", "Sources"])
-	with report_tab:
-		st.markdown(report)
-	with review_tab:
-		st.markdown(result.get("feedback", "No critique was returned."))
-	with sources_tab:
-		search_column, scrape_column = st.columns(2, gap="large")
-		with search_column:
-			st.markdown("#### Search results")
-			st.markdown(result.get("search_results", "No search results were returned."))
-		with scrape_column:
-			st.markdown("#### Extracted source text")
-			st.markdown(result.get("scrape_content", "No source text was returned."))
-else:
-	st.markdown(
-		'<div class="empty-state"><span class="section-label">Workspace ready</span><br><br>'
-		'Enter a topic in the left panel to generate a researched report and critique.'
-		'</div>',
-		unsafe_allow_html=True,
-	)
+        heading_column, action_column = st.columns([0.72, 0.28], vertical_alignment="bottom")
+        with heading_column:
+            st.markdown(
+                render_document_header(
+                    submitted_topic,
+                    format_score(parse_score(feedback)),
+                    critique_state,
+                ),
+                unsafe_allow_html=True,
+            )
+        with action_column:
+            with st.container(key="doc-actions"):
+                st.download_button(
+                    "Download .md",
+                    data=f"# {submitted_topic}\n\n{report}",
+                    file_name=report_filename(submitted_topic),
+                    mime="text/markdown",
+                    icon=":material/download:",
+                    key="download_report_md",
+                )
+
+        report_tab, critique_tab, sources_tab = st.tabs(["Report", "Critique", "Sources"])
+
+        with report_tab:
+            with st.container(key="doc-body"):
+                st.markdown(strip_leading_heading(report) or "No report was returned.")
+
+        with critique_tab:
+            with st.container(key="critique-body"):
+                st.markdown(feedback or "No critique was returned.")
+
+        with sources_tab:
+            search_text = result.get("search_results") or ""
+            scrape_text = result.get("scrape_content") or ""
+            links = extract_links(search_text)
+
+            with st.container(key="sources"):
+                if links:
+                    st.markdown(render_source_links(links), unsafe_allow_html=True)
+                with st.expander("Search results", expanded=True):
+                    st.code(search_text or "No search results were returned.", language="markdown")
+                with st.expander("Extracted source text", expanded=False):
+                    st.code(scrape_text or "No source text was returned.", language="markdown")

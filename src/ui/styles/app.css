@@ -1,0 +1,1095 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
+/* ============================================================
+   1. Design tokens
+   ============================================================ */
+:root {
+	--bg-app: #04070a;
+	--bg-surface: #0a0f15;
+	--bg-surface-2: #0e141b;
+	--bg-hover: #131a23;
+	--line: rgba(230, 240, 255, 0.09);
+	--line-strong: rgba(230, 240, 255, 0.16);
+	--text-1: #edf1f5;
+	--text-doc: #dde4ea;
+	--text-2: #9ba9b7;
+	--text-3: #6c7a88;
+	--accent: #c6f24e;
+	--accent-ink: #0a0f06;
+	--accent-soft: rgba(198, 242, 78, 0.1);
+	--accent-line: rgba(198, 242, 78, 0.45);
+	--danger: #f2836b;
+	--danger-soft: rgba(242, 131, 107, 0.1);
+	--font-ui: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--font-doc: 'EB Garamond', Georgia, 'Times New Roman', serif;
+	--font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+	--r-sm: 6px;
+	--r-md: 10px;
+	--r-lg: 14px;
+	--rail: 336px;
+}
+
+/* ============================================================
+   2. Base
+   ============================================================ */
+html,
+body,
+.stApp,
+[data-testid='stAppViewContainer'],
+[data-testid='stMain'] {
+	font-family: var(--font-ui);
+	color: var(--text-1);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.stApp {
+	background-color: var(--bg-app);
+	background-image:
+		radial-gradient(1100px 620px at 10% -12%, rgba(198, 242, 78, 0.055), transparent 62%),
+		radial-gradient(900px 520px at 92% 4%, rgba(120, 160, 255, 0.05), transparent 64%),
+		linear-gradient(180deg, #05080c 0%, #04070a 46%, #030508 100%);
+}
+
+[data-testid='stAppViewContainer'],
+[data-testid='stMain'] {
+	background: transparent;
+}
+
+::selection {
+	background: rgba(198, 242, 78, 0.24);
+	color: var(--text-1);
+}
+
+*:focus-visible {
+	outline: 2px solid rgba(198, 242, 78, 0.55);
+	outline-offset: 2px;
+}
+
+p,
+li,
+label,
+span,
+div {
+	font-family: inherit;
+}
+
+/* Streamlit paints markdown anchors blue; these rules keep links on-brand. */
+.stApp a,
+.stApp [data-testid='stMarkdownContainer'] a {
+	color: var(--accent);
+	text-decoration: none;
+}
+
+.stApp a:hover,
+.stApp [data-testid='stMarkdownContainer'] a:hover {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+/* ============================================================
+   3. Streamlit chrome
+   ============================================================ */
+#MainMenu,
+footer,
+[data-testid='stDecoration'],
+[data-testid='stToolbar'],
+[data-testid='stAppDeployButton'],
+[data-testid='stToolbarActions'] {
+	display: none !important;
+}
+
+[data-testid='stHeader'] {
+	background: transparent;
+	backdrop-filter: none;
+	height: 0;
+}
+
+[data-testid='stMainBlockContainer'],
+.block-container {
+	padding: 26px 44px 88px;
+	max-width: 1240px;
+	margin: 0 auto;
+}
+
+[data-testid='stVerticalBlock'] {
+	gap: 0.85rem;
+}
+
+/* ============================================================
+   3b. Sidebar run console
+   ============================================================ */
+[data-testid='stSidebar'] {
+	background-color: var(--bg-surface);
+	background-image: linear-gradient(180deg, rgba(198, 242, 78, 0.035), transparent 38%);
+	border-right: 1px solid var(--line);
+	min-width: var(--rail) !important;
+	max-width: var(--rail) !important;
+	width: var(--rail) !important;
+}
+
+[data-testid='stSidebarContent'] {
+	padding: 0 !important;
+}
+
+/* The header only holds the collapse control, which appears on hover.
+   Collapsing it lets the console start at the top of the rail. */
+[data-testid='stSidebarHeader'] {
+	height: 0 !important;
+	min-height: 0 !important;
+	padding: 0 !important;
+	overflow: visible !important;
+}
+
+[data-testid='stSidebarUserContent'] {
+	padding: 18px 20px 32px !important;
+	gap: 0.55rem;
+}
+
+[data-testid='stSidebarCollapseButton'] button,
+[data-testid='stSidebarCollapseButton'] button:hover {
+	color: var(--text-3);
+	background: transparent;
+}
+
+[data-testid='stSidebar'] [data-testid='stMarkdownContainer'] p {
+	margin: 0;
+}
+
+/* ============================================================
+   4. Inputs
+   ============================================================ */
+.stTextArea label,
+.stTextArea label p,
+[data-testid='stWidgetLabel'] p {
+	font: 600 12.5px/1.4 var(--font-ui) !important;
+	color: var(--text-1) !important;
+	letter-spacing: 0.01em;
+}
+
+div[data-baseweb='textarea'],
+.stTextArea div[data-baseweb='base-input'] {
+	background-color: var(--bg-surface-2) !important;
+	border: 1px solid var(--line-strong) !important;
+	border-radius: var(--r-md) !important;
+	box-shadow: none !important;
+}
+
+.stTextArea div[data-baseweb='base-input']:focus-within,
+div[data-baseweb='textarea']:focus-within {
+	border-color: var(--accent-line) !important;
+	box-shadow: 0 0 0 3px var(--accent-soft) !important;
+}
+
+.stTextArea textarea {
+	background: transparent !important;
+	color: var(--text-1) !important;
+	font: 400 14px/1.6 var(--font-ui) !important;
+	padding: 12px 13px !important;
+	caret-color: var(--accent);
+}
+
+.stTextArea textarea::placeholder {
+	color: var(--text-3) !important;
+}
+
+[data-testid='stTooltipHoverTarget'] svg,
+[data-testid='stWidgetLabel'] svg {
+	color: var(--text-3) !important;
+}
+
+/* ============================================================
+   5. Buttons
+   ============================================================ */
+.stButton button,
+[data-testid='stBaseButton-secondary'],
+[data-testid='stDownloadButton'] button {
+	font-family: var(--font-ui) !important;
+	font-weight: 600 !important;
+	font-size: 13px !important;
+	border-radius: var(--r-md) !important;
+	transition: background-color 0.14s ease, border-color 0.14s ease, transform 0.14s ease,
+		box-shadow 0.14s ease;
+}
+
+[data-testid='stBaseButton-primary'],
+.stButton button[kind='primary'] {
+	background: var(--accent) !important;
+	color: var(--accent-ink) !important;
+	border: 1px solid var(--accent) !important;
+	font-weight: 800 !important;
+	letter-spacing: 0.01em;
+	height: 44px;
+	box-shadow: 0 10px 26px -16px rgba(198, 242, 78, 0.9);
+}
+
+[data-testid='stBaseButton-primary']:hover,
+.stButton button[kind='primary']:hover {
+	background: #d6ff63 !important;
+	border-color: #d6ff63 !important;
+	color: var(--accent-ink) !important;
+	transform: translateY(-1px);
+	box-shadow: 0 14px 30px -14px rgba(198, 242, 78, 0.85);
+}
+
+[data-testid='stBaseButton-primary']:active,
+.stButton button[kind='primary']:active {
+	transform: translateY(0);
+}
+
+[data-testid='stBaseButton-secondary'],
+[data-testid='stDownloadButton'] button {
+	background: transparent !important;
+	color: var(--text-1) !important;
+	border: 1px solid var(--line-strong) !important;
+	height: 40px;
+}
+
+[data-testid='stBaseButton-secondary']:hover,
+[data-testid='stDownloadButton'] button:hover {
+	background: var(--bg-hover) !important;
+	border-color: var(--accent-line) !important;
+	color: var(--text-1) !important;
+}
+
+[data-testid='stBaseButton-primary'] p,
+[data-testid='stBaseButton-secondary'] p,
+[data-testid='stDownloadButton'] button p {
+	font-weight: inherit !important;
+	font-size: 13px !important;
+}
+
+/* ============================================================
+   6. Tabs
+   ============================================================ */
+/* Streamlit 1.66 renders tabs with React Aria: [role="tablist"] + [data-testid="stTab"].
+   The active indicator is themed by primaryColor, so only type and spacing live here. */
+[data-testid='stTabs'] [role='tablist'] {
+	background: transparent;
+	gap: 30px;
+	border-bottom: 1px solid var(--line);
+	padding: 0 0 1px;
+}
+
+[data-testid='stTab'] {
+	background: transparent !important;
+	padding: 0 0 12px !important;
+	border: none !important;
+	box-shadow: none !important;
+	font: 600 13px/1.2 var(--font-ui) !important;
+	color: var(--text-2) !important;
+	transition: color 0.14s ease;
+}
+
+[data-testid='stTab'] * {
+	font-family: var(--font-ui) !important;
+	font-size: 13px !important;
+	font-weight: 600 !important;
+	color: inherit !important;
+}
+
+[data-testid='stTab']:hover {
+	color: var(--text-1) !important;
+}
+
+[data-testid='stTab'][aria-selected='true'] {
+	color: var(--text-1) !important;
+}
+
+[data-testid='stTabs'] {
+	margin-top: 4px;
+}
+
+/* ============================================================
+   7. Expander / status / alert / code
+   ============================================================ */
+[data-testid='stExpander'] details,
+[data-testid='stStatus'] details,
+[class*='st-key-runlog'] details,
+[class*='st-key-sources'] details {
+	border: 1px solid var(--line) !important;
+	border-radius: var(--r-lg) !important;
+	background: rgba(14, 20, 27, 0.55) !important;
+	overflow: hidden;
+}
+
+[data-testid='stExpander'] summary,
+[data-testid='stStatus'] summary,
+[class*='st-key-runlog'] summary,
+[class*='st-key-sources'] summary {
+	font: 600 12.5px/1.3 var(--font-ui) !important;
+	color: var(--text-2) !important;
+	padding: 11px 14px !important;
+	letter-spacing: 0.01em;
+}
+
+[data-testid='stExpander'] summary:hover,
+[class*='st-key-runlog'] summary:hover {
+	color: var(--text-1) !important;
+}
+
+[data-testid='stExpander'] summary svg,
+[data-testid='stStatus'] summary svg,
+[class*='st-key-runlog'] summary svg {
+	color: var(--text-3) !important;
+}
+
+[data-testid='stExpanderDetails'] {
+	padding: 0 14px 14px !important;
+}
+
+[data-testid='stAlert'] {
+	background: var(--bg-surface) !important;
+	border: 1px solid var(--line-strong) !important;
+	border-radius: var(--r-md) !important;
+	color: var(--text-2) !important;
+}
+
+[data-testid='stAlert'] p {
+	font: 400 13.5px/1.6 var(--font-ui) !important;
+	color: var(--text-2) !important;
+}
+
+[data-testid='stAlert'] [data-testid='stAlertContentError'] p,
+[data-testid='stAlert'] [data-testid='stAlertContentWarning'] p {
+	color: var(--text-1) !important;
+}
+
+[data-testid='stCode'],
+[class*='st-key-sources'] [data-testid='stCode'] {
+	border: 1px solid var(--line) !important;
+	border-radius: var(--r-md) !important;
+	background: #080d12 !important;
+}
+
+[data-testid='stCode'] pre,
+[data-testid='stCode'] code {
+	font-family: var(--font-mono) !important;
+	font-size: 12.5px !important;
+	line-height: 1.75 !important;
+	color: var(--text-2) !important;
+	white-space: pre-wrap !important;
+	word-break: break-word;
+}
+
+[data-testid='stCode'] pre {
+	padding: 16px 18px !important;
+}
+
+[data-testid='stCodeCopyButton'] button {
+	color: var(--text-3) !important;
+	background: var(--bg-hover) !important;
+	border: 1px solid var(--line) !important;
+	border-radius: var(--r-sm) !important;
+}
+
+[data-testid='stCodeCopyButton'] button:hover {
+	color: var(--accent) !important;
+	border-color: var(--accent-line) !important;
+}
+
+/* ============================================================
+   8. App bar
+   ============================================================ */
+.fx-appbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 20px;
+	max-width: 780px;
+	margin: 0 auto 22px;
+	padding: 4px 0 16px;
+	border-bottom: 1px solid var(--line);
+}
+
+.fx-appbar-left {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	min-width: 0;
+}
+
+.fx-apptitle {
+	font: 700 14px/1 var(--font-ui);
+	letter-spacing: -0.01em;
+	color: var(--text-1);
+}
+
+.fx-appdiv {
+	width: 1px;
+	height: 14px;
+	background: var(--line-strong);
+}
+
+.fx-appmeta {
+	font: 400 12px/1 var(--font-mono);
+	color: var(--text-3);
+}
+
+.fx-runstate {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font: 500 12px/1 var(--font-mono);
+	color: var(--text-2);
+	text-transform: lowercase;
+}
+
+.fx-dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--text-3);
+}
+
+.fx-runstate--running .fx-dot {
+	background: var(--accent);
+	box-shadow: 0 0 0 0 rgba(198, 242, 78, 0.55);
+	animation: fx-pulse 1.8s ease-out infinite;
+}
+
+.fx-runstate--complete .fx-dot {
+	background: var(--accent);
+}
+
+.fx-runstate--error .fx-dot {
+	background: var(--danger);
+}
+
+.fx-runstate--error {
+	color: var(--danger);
+}
+
+@keyframes fx-pulse {
+	0% {
+		box-shadow: 0 0 0 0 rgba(198, 242, 78, 0.5);
+	}
+	70% {
+		box-shadow: 0 0 0 7px rgba(198, 242, 78, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(198, 242, 78, 0);
+	}
+}
+
+/* ============================================================
+   9. Sidebar brand + stage rail
+   ============================================================ */
+.fx-brand {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	padding: 0 0 18px;
+	border-bottom: 1px solid var(--line);
+	margin-bottom: 20px;
+}
+
+.fx-mark {
+	width: 11px;
+	height: 11px;
+	border-radius: 3px;
+	background: var(--accent);
+	box-shadow: 0 0 14px rgba(198, 242, 78, 0.7);
+	flex: none;
+}
+
+.fx-brand-text {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	min-width: 0;
+}
+
+.fx-brand-name {
+	font: 700 13.5px/1.1 var(--font-ui);
+	letter-spacing: -0.01em;
+	color: var(--text-1);
+}
+
+.fx-brand-sub {
+	font: 400 11.5px/1.1 var(--font-mono);
+	color: var(--text-3);
+}
+
+.fx-rail {
+	list-style: none;
+	margin: 18px 0 0;
+	padding: 0;
+	counter-reset: none;
+}
+
+.fx-stage {
+	position: relative;
+	display: grid;
+	grid-template-columns: 22px 1fr;
+	gap: 13px;
+	padding: 0 0 20px;
+}
+
+.fx-stage:last-child {
+	padding-bottom: 2px;
+}
+
+.fx-stage:not(:last-child)::before {
+	content: '';
+	position: absolute;
+	left: 10.5px;
+	top: 25px;
+	bottom: 3px;
+	width: 1px;
+	background: var(--line-strong);
+}
+
+.fx-stage--finished:not(:last-child)::before {
+	background: rgba(198, 242, 78, 0.26);
+}
+
+.fx-stage-marker {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	border: 1px solid rgba(230, 240, 255, 0.18);
+	background: var(--bg-surface);
+	color: transparent;
+	font-size: 0;
+	transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.fx-stage--finished .fx-stage-marker {
+	border-color: rgba(198, 242, 78, 0.5);
+	color: var(--accent);
+	background: rgba(198, 242, 78, 0.07);
+}
+
+.fx-stage--running .fx-stage-marker {
+	border-color: var(--accent);
+	background: var(--accent);
+	box-shadow: 0 0 0 5px var(--accent-soft);
+}
+
+.fx-stage--failed .fx-stage-marker {
+	border-color: rgba(242, 131, 107, 0.55);
+	background: var(--danger-soft);
+	color: var(--danger);
+}
+
+.fx-stage--unavailable .fx-stage-marker {
+	border-color: rgba(242, 131, 107, 0.4);
+	background: transparent;
+	color: var(--danger);
+}
+
+.fx-stage-body {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+	padding-top: 2px;
+}
+
+.fx-stage-title {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	font: 600 13px/1.25 var(--font-ui);
+	color: var(--text-2);
+}
+
+.fx-stage-title svg {
+	color: var(--text-3);
+	flex: none;
+}
+
+.fx-stage--running .fx-stage-title,
+.fx-stage--finished .fx-stage-title {
+	color: var(--text-1);
+}
+
+.fx-stage--running .fx-stage-title svg {
+	color: var(--accent);
+}
+
+.fx-stage--not_started .fx-stage-title {
+	color: var(--text-3);
+}
+
+.fx-stage-state {
+	font: 400 12px/1.45 var(--font-mono);
+	color: var(--text-3);
+}
+
+.fx-stage--running .fx-stage-state {
+	color: var(--accent);
+}
+
+.fx-stage--failed .fx-stage-state,
+.fx-stage--unavailable .fx-stage-state {
+	color: var(--danger);
+}
+
+.fx-stage-detail {
+	display: block;
+	margin-top: 3px;
+	font: 400 11px/1.45 var(--font-mono);
+	color: var(--text-3);
+	opacity: 0.85;
+}
+
+/* run details */
+.fx-events {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.stApp .fx-ev {
+	display: grid;
+	grid-template-columns: 26px 1fr;
+	gap: 10px;
+	align-items: baseline;
+	margin: 0 !important;
+	padding: 0 !important;
+	font: 400 11.5px/1.5 var(--font-mono);
+	color: var(--text-2);
+}
+
+.fx-ev-idx {
+	color: var(--text-3);
+	font-size: 10.5px;
+}
+
+/* ============================================================
+   10. Idle workspace
+   ============================================================ */
+.fx-idle {
+	max-width: 100%;
+	padding: 34px 0 0;
+}
+
+/* Scoped through .stApp so these outrank Streamlit's own heading rules. */
+.stApp [data-testid='stMarkdownContainer'] .fx-idle-title {
+	margin: 0;
+	font: 400 clamp(32px, 3.6vw, 44px) / 1.06 var(--font-doc);
+	letter-spacing: -0.015em;
+	color: var(--text-1);
+}
+
+.stApp [data-testid='stMarkdownContainer'] .fx-idle-copy {
+	margin: 16px 0 0;
+	font: 400 14.5px/1.7 var(--font-ui);
+	color: var(--text-2);
+	max-width: 58ch;
+}
+
+.stApp .fx-manifest {
+	list-style: none;
+	margin: 38px 0 0;
+	padding: 0 !important;
+	border-top: 1px solid var(--line);
+}
+
+.stApp .fx-manifest-row {
+	display: grid;
+	grid-template-columns: 40px 1fr 1fr;
+	gap: 20px;
+	align-items: center;
+	margin: 0 !important;
+	padding: 16px 2px !important;
+	border-bottom: 1px solid var(--line);
+}
+
+.fx-idx {
+	font: 400 11px/1 var(--font-mono);
+	color: var(--text-3);
+}
+
+.fx-m-title {
+	display: inline-flex;
+	align-items: center;
+	gap: 9px;
+	font: 600 13.5px/1.3 var(--font-ui);
+	color: var(--text-1);
+}
+
+.fx-m-title svg {
+	color: var(--text-3);
+}
+
+.fx-m-out {
+	font: 400 12.5px/1.4 var(--font-ui);
+	color: var(--text-3);
+	text-align: right;
+}
+
+/* ============================================================
+   11. Document header
+   ============================================================ */
+/* One reading column holds the header, tabs and results. */
+[class*='st-key-workspace'] {
+	max-width: 780px;
+	width: 100%;
+	margin: 0 auto;
+}
+
+.fx-dochead {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 4px 0 20px;
+}
+
+.stApp [data-testid='stMarkdownContainer'] .fx-doc-title {
+	margin: 0;
+	font: 400 clamp(26px, 2.6vw, 34px) / 1.16 var(--font-doc);
+	letter-spacing: -0.015em;
+	color: var(--text-1);
+	max-width: 30ch;
+	overflow-wrap: anywhere;
+}
+
+.fx-dochead-meta {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.fx-score {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 9px;
+	padding: 7px 13px;
+	border: 1px solid var(--line-strong);
+	border-radius: 999px;
+	background: rgba(14, 20, 27, 0.6);
+}
+
+.fx-score-label {
+	font: 500 12px/1 var(--font-mono);
+	color: var(--text-3);
+	text-transform: lowercase;
+}
+
+.fx-score-value {
+	font: 500 14px/1 var(--font-mono);
+	color: var(--accent);
+	letter-spacing: -0.02em;
+}
+
+.fx-score--muted .fx-score-value {
+	color: var(--text-2);
+	font-size: 12.5px;
+}
+
+[class*='st-key-doc-actions'] {
+	margin-bottom: 22px;
+	display: flex;
+	justify-content: flex-end;
+}
+
+/* ============================================================
+   12. Generated document typography
+   ============================================================ */
+[class*='st-key-doc-body'],
+[class*='st-key-critique-body'] {
+	background: linear-gradient(180deg, rgba(18, 26, 35, 0.6), rgba(10, 15, 21, 0.55));
+	border: 1px solid var(--line);
+	border-radius: var(--r-lg);
+	padding: 32px 38px 40px;
+	margin: 16px 0 8px;
+}
+
+[class*='st-key-doc-body'] [data-testid='stMarkdownContainer'],
+[class*='st-key-critique-body'] [data-testid='stMarkdownContainer'] {
+	max-width: 100%;
+}
+
+[class*='st-key-doc-body'] [data-testid='stMarkdownContainer'] > *:first-child,
+[class*='st-key-critique-body'] [data-testid='stMarkdownContainer'] > *:first-child {
+	margin-top: 0;
+}
+
+[class*='st-key-doc-body'] p,
+[class*='st-key-critique-body'] p,
+[class*='st-key-doc-body'] li,
+[class*='st-key-critique-body'] li {
+	font: 400 17.5px/1.72 var(--font-doc);
+	color: var(--text-doc);
+}
+
+[class*='st-key-doc-body'] p,
+[class*='st-key-critique-body'] p {
+	font-size: 18px;
+	color: #e3e9ef;
+}
+
+[class*='st-key-doc-body'] li,
+[class*='st-key-critique-body'] li {
+	margin-bottom: 0.4em;
+}
+
+[class*='st-key-doc-body'] li::marker,
+[class*='st-key-critique-body'] li::marker {
+	color: var(--text-3);
+}
+
+[class*='st-key-doc-body'] h1,
+[class*='st-key-critique-body'] h1 {
+	font: 700 23px/1.25 var(--font-ui);
+	letter-spacing: -0.02em;
+	color: var(--text-1);
+	margin: 0 0 0.7em;
+}
+
+[class*='st-key-doc-body'] h2,
+[class*='st-key-critique-body'] h2 {
+	font: 700 16px/1.35 var(--font-ui);
+	letter-spacing: -0.01em;
+	color: var(--text-1);
+	margin: 2.1em 0 0.7em;
+	padding-top: 1.5em;
+	border-top: 1px solid var(--line);
+}
+
+[class*='st-key-doc-body'] h3,
+[class*='st-key-critique-body'] h3 {
+	font: 700 14.5px/1.4 var(--font-ui);
+	color: var(--text-1);
+	margin: 1.7em 0 0.5em;
+}
+
+[class*='st-key-doc-body'] strong,
+[class*='st-key-critique-body'] strong {
+	color: var(--text-1);
+	font-weight: 600;
+}
+
+[class*='st-key-doc-body'] em,
+[class*='st-key-critique-body'] em {
+	color: var(--text-2);
+}
+
+[class*='st-key-doc-body'] a,
+[class*='st-key-critique-body'] a {
+	color: var(--accent);
+	text-decoration: underline;
+	text-decoration-color: rgba(198, 242, 78, 0.35);
+	text-underline-offset: 3px;
+}
+
+[class*='st-key-doc-body'] hr,
+[class*='st-key-critique-body'] hr {
+	border: none;
+	border-top: 1px solid var(--line);
+	margin: 2em 0;
+}
+
+[class*='st-key-doc-body'] blockquote,
+[class*='st-key-critique-body'] blockquote {
+	margin: 1.6em 0;
+	padding: 2px 0 2px 20px;
+	border-left: 2px solid var(--accent-line);
+}
+
+[class*='st-key-doc-body'] blockquote p,
+[class*='st-key-critique-body'] blockquote p {
+	font-size: 17px;
+	color: var(--text-2);
+	font-style: normal;
+}
+
+[class*='st-key-doc-body'] code,
+[class*='st-key-critique-body'] code {
+	font-family: var(--font-mono) !important;
+	font-size: 0.82em !important;
+	background: rgba(198, 242, 78, 0.07);
+	border: 1px solid rgba(198, 242, 78, 0.14);
+	border-radius: 4px;
+	padding: 0.12em 0.4em;
+	color: #d8e6bd;
+}
+
+[class*='st-key-doc-body'] pre,
+[class*='st-key-critique-body'] pre {
+	background: #080d12;
+	border: 1px solid var(--line);
+	border-radius: var(--r-md);
+	padding: 16px 18px;
+	overflow-x: auto;
+}
+
+[class*='st-key-doc-body'] pre code,
+[class*='st-key-critique-body'] pre code {
+	background: none;
+	border: none;
+	padding: 0;
+	color: var(--text-2);
+	font-size: 12.5px;
+	line-height: 1.7;
+}
+
+[class*='st-key-doc-body'] table,
+[class*='st-key-critique-body'] table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1.6em 0;
+	font-family: var(--font-ui);
+	font-size: 13px;
+	display: table;
+}
+
+[class*='st-key-doc-body'] thead th,
+[class*='st-key-critique-body'] thead th {
+	font: 600 11px/1.3 var(--font-mono);
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--text-3);
+	text-align: left;
+	padding: 0 14px 10px 0;
+	border-bottom: 1px solid var(--line-strong);
+}
+
+[class*='st-key-doc-body'] tbody td,
+[class*='st-key-critique-body'] tbody td {
+	padding: 11px 14px 11px 0;
+	border-bottom: 1px solid var(--line);
+	color: var(--text-2);
+	vertical-align: top;
+}
+
+[class*='st-key-doc-body'] tbody td:first-child,
+[class*='st-key-critique-body'] tbody td:first-child {
+	color: var(--text-1);
+}
+
+/* ============================================================
+   13. Sources
+   ============================================================ */
+[class*='st-key-sources'] {
+	margin-top: 16px;
+}
+
+.fx-links {
+	border: 1px solid var(--line);
+	border-radius: var(--r-lg);
+	background: rgba(14, 20, 27, 0.5);
+	padding: 18px 20px 8px;
+	margin-bottom: 14px;
+}
+
+.fx-links-head {
+	font: 500 11.5px/1 var(--font-mono);
+	color: var(--text-3);
+	text-transform: lowercase;
+	margin-bottom: 14px;
+}
+
+.fx-link-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.fx-link-row {
+	display: block;
+	padding: 10px 0 !important;
+	border-top: 1px solid var(--line);
+}
+
+.stApp .fx-link {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 12px;
+	align-items: center;
+	color: var(--text-1) !important;
+	text-decoration: none !important;
+	padding: 2px 6px;
+	margin: 0 -6px;
+	border-radius: var(--r-sm);
+	background: transparent;
+}
+
+.stApp .fx-link * {
+	text-decoration: none !important;
+}
+
+.stApp .fx-link:hover {
+	text-decoration: none !important;
+	background: var(--bg-hover);
+}
+
+.fx-link-body {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	min-width: 0;
+}
+
+.fx-link-host {
+	font: 500 12.5px/1.3 var(--font-ui);
+	color: var(--text-1);
+}
+
+.fx-link-path {
+	font: 400 11.5px/1.4 var(--font-mono);
+	color: var(--text-3);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.fx-link-icon {
+	color: var(--text-3);
+	display: inline-flex;
+}
+
+.fx-link:hover .fx-link-icon {
+	color: var(--accent);
+}
+
+/* ============================================================
+   14. Scrollbar + motion preferences
+   ============================================================ */
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #1a222c;
+	border-radius: 999px;
+	border: 2px solid transparent;
+	background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #26313d;
+	background-clip: padding-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.001ms !important;
+	}
+}
+
+@media (max-width: 1100px) {
+	[data-testid='stMainBlockContainer'],
+	.block-container {
+		padding: 20px 24px 72px;
+	}
+}
