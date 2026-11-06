@@ -8,27 +8,35 @@ from bs4 import BeautifulSoup
 from readability import Document
 import trafilatura
 import re
-  
 
 
 load_dotenv()
 
-tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+tavily = TavilyClient(api_key=TAVILY_API_KEY or "")
 
 
-def web_search(query:str) -> str:
-    """" search teh web for recent and reliable information on a topic. Returns Titles, urls, and snippets of the top 5 results. """
+@tool
+def web_search(query: str) -> str:
+    """Search the web for recent, reliable information on a topic and return the top 5 results with titles, URLs, and snippets."""
 
-    results = tavily.search(query=query, max_results=5)
+    if not TAVILY_API_KEY or TAVILY_API_KEY == "your_tavily_api_key_here":
+        return "Error: Tavily API key is missing or invalid. Add a valid TAVILY_API_KEY to your .env file."
+
+    try:
+        results = tavily.search(query=query, max_results=5)
+    except Exception as e:
+        return f"Error: Tavily search failed. Details: {str(e)}"
+
     out=[]
     for r in results['results']:
         out.append(f"Title: {r['title']}\nURL: {r['url']}\nSnippet: {r['content'][:300]}\n")
     return "\n...\n".join(out)
 
 
-
-def scrape_url(url:str) -> str:
-    """scrape the content of a webpage and return the text content from url. Returns the title and the main text content of the page. Use multiple extraction methods to get the best results. If the page is not in English, translate it to English. If the page is not accessible, return an error message. """
+@tool
+def scrape_url(url: str) -> str:
+    """Scrape the text content of a webpage and return a concise summary extracted from the page. Use the URL as input."""
 
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
