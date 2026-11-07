@@ -52,8 +52,14 @@ Keep `.env` private and do not commit real API keys.
 
 Start the application from the project directory:
 
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run app.py
+```
+
+On macOS or Linux, use the virtual environment's interpreter:
+
 ```sh
-streamlit run app.py
+./.venv/bin/python -m streamlit run app.py
 ```
 
 Open the local URL printed by Streamlit, enter a research topic in the sidebar, and select **Run research**. The sidebar shows the active pipeline stage. When the run completes, use the **Report**, **Critique**, and **Sources** tabs to review the output. Select **Download .md** to save the report.
